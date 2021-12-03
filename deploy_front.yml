@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ic-webapp-deployment
+  labels:
+    app: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: ic-webapp
+        image: aoma95/ic-webapp:1.0
+        env:
+        - name: PGADMIN_URL
+          value: "https://www.pgadmin.org/"
+        - name: ODOO_URL
+          value: "https://www.odoo.com/"
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: app
+  ports:
+    - protocol: TCP
+      port: 8080
+  type: NodePort

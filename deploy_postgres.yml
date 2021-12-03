@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata :
+  name: postgresdb
+spec:
+  storageClassName: postgresdb
+  capacity:
+    storage: 5Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/home/user/tp_kub"
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata :
+  name: postgresdb
+spec:
+  storageClassName: postgresdb
+  resources:
+    requests:
+      storage: 5Gi
+  accessModes:
+  - ReadWriteMany
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres 
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres
+        ports:
+          - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: odoo
+        - name: POSTGRES_PASSWORD
+          value: odoo
+        volumeMounts:
+        - name: postgresdb
+          mountPath: /var/lib/
+      volumes:
+      - name: postgresdb
+        persistentVolumeClaim:
+          claimName: postgresdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: postgres
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
