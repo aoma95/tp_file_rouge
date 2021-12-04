@@ -9,7 +9,7 @@ spec:
   accessModes:
   - ReadWriteMany
   hostPath:
-    path: "/home/user/tp_kub"
+    path: "/home/user/postgres_data"
     type: DirectoryOrCreate
 ---
 apiVersion: v1
@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres
+        image: postgres:13
         ports:
           - containerPort: 5432
         env:
@@ -48,9 +48,11 @@ spec:
           value: odoo
         - name: POSTGRES_PASSWORD
           value: odoo
+        - name: POSTGRES_DB
+          value: postgres
         volumeMounts:
         - name: postgresdb
-          mountPath: /var/lib/
+          mountPath: /var/lib/postgresql/data
       volumes:
       - name: postgresdb
         persistentVolumeClaim:
