@@ -1,7 +1,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata :
+  namespace: icgroup
   name: postgresdb
+  labels:
+    env: prod
 spec:
   storageClassName: postgresdb
   capacity:
@@ -15,7 +18,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata :
+  namespace: icgroup
   name: postgresdb
+  labels:
+    env: prod
 spec:
   storageClassName: postgresdb
   resources:
@@ -27,6 +33,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: icgroup
+  labels:
+    env: pod
   name: postgres
 spec:
   replicas: 1
@@ -40,16 +49,12 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:13
+        image: postgres
         ports:
           - containerPort: 5432
-        env:
-        - name: POSTGRES_USER
-          value: odoo
-        - name: POSTGRES_PASSWORD
-          value: odoo
-        - name: POSTGRES_DB
-          value: postgres
+        envFrom:
+        - configMapRef:
+            name: postgres-config
         volumeMounts:
         - name: postgresdb
           mountPath: /var/lib/postgresql/data
@@ -61,8 +66,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: icgroup
   labels:
     app: postgres
+    env: prod
   name: postgres-service
 spec:
   selector:

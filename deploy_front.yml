@@ -1,9 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: icgroup
   name: ic-webapp-deployment
   labels:
     app: app
+    env: prod
 spec:
   replicas: 2
   selector:
@@ -21,16 +23,19 @@ spec:
         - name: PGADMIN_URL
           value: "https://www.pgadmin.org/"
         - name: ODOO_URL
-          value: "https://www.odoo.com/"
+          value: odoo-service
         ports:
         - containerPort: 8080
-      imagePullSecrets:
-        - name: regcred
+      #imagePullSecrets:
+      #  - name: regcred
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: icgroup
   name: app-service
+  labels:
+    env: prod
 spec:
   selector:
     app: app

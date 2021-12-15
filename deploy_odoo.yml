@@ -1,9 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: icgroup
   name: odoo
+  labels:
+    env: prod
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: odoo
@@ -14,22 +17,20 @@ spec:
     spec:
       containers:
       - name: odoo
-        image: odoo:14.0
+        image: odoo:14
         ports:
         - containerPort: 8069
-        env:
-        - name: USER
-          value: odoo
-        - name: PASSWORD
-          value: odoo
-        - name: HOST
-          value: postgres-service
+        envFrom:
+        - configMapRef:
+            name: odoo-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: icgroup
   labels:
     app: odoo
+    env: prod
   name: odoo-service
 spec:
   selector:
