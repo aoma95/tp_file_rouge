@@ -1,0 +1,35 @@
+version: '3.9'
+services:
+  web:
+    container_name: odoo
+    image: odoo:14.0
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    volumes:
+      - web-data:/var/lib/odoo
+    env_file:
+      - odoo.env
+    networks:
+      - web
+  db:
+    container_name: postgres
+    image: postgres:13
+    env_file:
+      - postgres.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+     - web
+     - db
+volumes:
+  web-data:
+  db-data:
+
+networks:
+  db:
+    name: db
+  web:
+    name: web
+
